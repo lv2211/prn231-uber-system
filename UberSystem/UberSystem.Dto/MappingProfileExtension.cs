@@ -1,4 +1,8 @@
 ﻿using AutoMapper;
+using UberSystem.Domain.Entities;
+using UberSystem.Domain.Enums;
+using UberSystem.Dto.Requests;
+using UberSystem.Dto.Responses;
 
 namespace UberSystem.Dto
 {
@@ -9,7 +13,12 @@ namespace UberSystem.Dto
         /// </summary>
         public MappingProfileExtension()
         {
-            
+            CreateMap<User, LoginResponseModel>()
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
+
+            CreateMap<SignupModel, User>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => Enum.Parse(typeof(UserRole), src.Role, true)));
         }
     }
 }

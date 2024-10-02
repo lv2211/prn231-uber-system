@@ -17,8 +17,4 @@
 		<ProjectReference Include="..\UberSystem.Service\UberSystem.Service.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Extensions\" />
-	</ItemGroup>
-
 </Project>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UberSystem.Domain.Entities;
+using UberSystem.Infrastructure.Configurations;
+using UberSystem.Infrastructure.Data;
 
 namespace UberSystem.Infrastructure
 {
@@ -48,7 +50,20 @@ namespace UberSystem.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            #region Entity relationship configurations
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CustomerConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(DriverConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(RatingConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TripConfiguration).Assembly);
+            #endregion
+
+            #region Seeding data files
+            modelBuilder.SeedCabInfo();
+            modelBuilder.SeedCustomerInfo();
+            modelBuilder.SeedDriverInfo();
+            modelBuilder.SeedUserInfo();
+            #endregion
         }
     }
 }

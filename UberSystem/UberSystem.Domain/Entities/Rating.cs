@@ -7,9 +7,9 @@ namespace UberSystem.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public Guid? CustomerId { get; set; }
+        public long? CustomerId { get; set; }
 
-        public Guid? DriverId { get; set; }
+        public long? DriverId { get; set; }
 
         public long? TripId { get; set; }
 

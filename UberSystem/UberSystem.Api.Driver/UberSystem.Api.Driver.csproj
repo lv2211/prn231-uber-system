@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 	</ItemGroup>
 
@@ -15,10 +19,6 @@
 		<ProjectReference Include="..\UberSystem.Dto\UberSystem.Dto.csproj" />
 		<ProjectReference Include="..\UberSystem.Infrastructure\UberSystem.Infrastructure.csproj" />
 		<ProjectReference Include="..\UberSystem.Service\UberSystem.Service.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Extensions\" />
 	</ItemGroup>
 
 </Project>

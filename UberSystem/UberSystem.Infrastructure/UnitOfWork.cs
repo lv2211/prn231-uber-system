@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UberSystem.Domain.Contracts;
+using UberSystem.Domain.Contracts.Repositories;
 
 namespace UberSystem.Infrastructure
 {
@@ -7,10 +8,39 @@ namespace UberSystem.Infrastructure
     {
         private readonly UberSystemDbContext _dbContext;
 
-        public UnitOfWork(UberSystemDbContext dbContext)
+        public UnitOfWork(
+            UberSystemDbContext dbContext,
+            ICabRepository cabRepository,
+            ICustomerRepository customerRepository,
+            IDriverRepository driverRepository,
+            IPaymentRepository paymentRepository,
+            IRatingRepository ratingRepository,
+            ITripRepository tripRepository,
+            IUserRepository userRepository)
         {
             _dbContext = dbContext;
+            CabRepository = cabRepository;
+            CustomerRepository = customerRepository;
+            DriverRepository = driverRepository;
+            PaymentRepository = paymentRepository;
+            RatingRepository = ratingRepository;
+            TripRepository = tripRepository;
+            UserRepository = userRepository;
         }
+
+        public ICabRepository CabRepository { get; }
+
+        public ICustomerRepository CustomerRepository { get; }
+
+        public IDriverRepository DriverRepository { get; }
+
+        public IPaymentRepository PaymentRepository { get; }
+
+        public IRatingRepository RatingRepository { get; }
+
+        public ITripRepository TripRepository { get; }
+
+        public IUserRepository UserRepository { get; }
 
         public void Dispose() => _dbContext.Dispose();
 

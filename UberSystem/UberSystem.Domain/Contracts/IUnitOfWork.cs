@@ -1,7 +1,23 @@
-﻿namespace UberSystem.Domain.Contracts
+﻿using UberSystem.Domain.Contracts.Repositories;
+
+namespace UberSystem.Domain.Contracts
 {
     public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
+        ICabRepository CabRepository { get; }
+        
+        ICustomerRepository CustomerRepository { get; }
+        
+        IDriverRepository DriverRepository { get; }
+        
+        IPaymentRepository PaymentRepository { get; }
+        
+        IRatingRepository RatingRepository { get; }
+        
+        ITripRepository TripRepository { get; }
+        
+        IUserRepository UserRepository { get; }
+
         /// <summary>
         /// Save any changes into database with asynchronous operation
         /// </summary>

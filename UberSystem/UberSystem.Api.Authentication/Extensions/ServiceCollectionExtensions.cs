@@ -83,10 +83,15 @@ namespace UberSystem.Api.Authentication.Extensions
             services.AddScoped(typeof(TokenService));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IEmailService, EmailService>();
-
             services.AddScoped<IUserService, UserService>();
+
             services.AddScoped<IUserRepository, UserRepository>();
-            
+            services.AddScoped<IRatingRepository, RatingRepository>();
+            services.AddScoped<ICabRepository, CabRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IDriverRepository, DriverRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<ITripRepository, TripRepository>();
 
             return services;
         }

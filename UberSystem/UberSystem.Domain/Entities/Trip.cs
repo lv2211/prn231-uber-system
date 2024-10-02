@@ -6,9 +6,9 @@ namespace UberSystem.Domain.Entities
     {
         public long Id { get; set; }
 
-        public Guid? CustomerId { get; set; }
+        public long? CustomerId { get; set; }
 
-        public Guid? DriverId { get; set; }
+        public long? DriverId { get; set; }
 
         public long? PaymentId { get; set; }
 
