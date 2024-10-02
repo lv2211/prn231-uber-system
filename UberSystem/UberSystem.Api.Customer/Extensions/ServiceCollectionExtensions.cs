@@ -92,8 +92,8 @@ namespace UberSystem.Api.Customer.Extensions
         private static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped<IUserService, UserService>();
-            
+            services.AddScoped<ICustomerService, CustomerService>();
+
             services.AddScoped<ICabRepository, CabRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IDriverRepository, DriverRepository>();

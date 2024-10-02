@@ -11,7 +11,7 @@ namespace UberSystem.Infrastructure.Data
                 new Cab()
                 {
                     Id = 1,
-                    DriverId = 1,
+                    //DriverId = 1,
                     Type = "Hyundai Accent - Sedan",
                     RegNo = "51A-12345",
                 }

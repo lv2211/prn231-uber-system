@@ -1,41 +1,153 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using UberSystem.Domain.Contracts.Services;
+using UberSystem.Dto;
+using UberSystem.Dto.Helpers;
+using UberSystem.Dto.Requests;
+using UberSystem.Dto.Responses;
 
 namespace UberSystem.Api.Customer.Controllers
 {
     [Route("api/uber-system")]
     [ApiController]
-    public class CustomersController : ControllerBase
+    public class CustomersController(ICustomerService customerService, IMapper mapper) : ControllerBase
     {
-        // GET: api/<CustomersController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly ICustomerService _customerService = customerService;
+        private readonly IMapper _mapper = mapper;
+
+        /// <summary>
+        /// Get customers in Uber with pagination
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet("customers/pageNumber/{pageNumber}/pageSize/{pageSize}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<PagedResponse<UserResponseModel>>>> GetCustomers(int pageNumber = 1, int pageSize = 10)
         {
-            return new string[] { "value1", "value2" };
+            var customers = _mapper.Map<IList<UserResponseModel>>(await _customerService.GetCustomers());
+            if (!customers.Any()) return NotFound(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "No data of customers!"
+            });
+            var response = PaginationHelper.GetPagedResponse(customers.AsQueryable(), pageNumber, pageSize);
+            return Ok(new ApiResponseModel<PagedResponse<UserResponseModel>>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Customers fetched successfully!",
+                Response = response
+            });
         }
 
-        // GET api/<CustomersController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        /// <summary>
+        /// Get customer by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("customers/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<UserResponseModel>>> GetCustomer(Guid id)
         {
-            return "value";
+            var customer = _mapper.Map<UserResponseModel>(await _customerService.GetCustomerById(id));
+            if (customer is null)
+            {
+                return NotFound(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Customer is not found!"
+                });
+            }
+            return Ok(new ApiResponseModel<UserResponseModel>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Customer fetched successfully!",
+                Response = customer
+            });
+        }
+        
+        /// <summary>
+        /// Update customer's information from client
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
+        [HttpPatch("customer/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<string>> UpdateCustomer(Guid id, [FromBody] UpdateUserRequestModel value)
+        {
+            if (id != value.Id)
+                return BadRequest(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Id is not matched!"
+                });
+
+            if (!ModelState.IsValid) return BadRequest();
+            var customer = await _customerService.GetCustomerById(id);
+            if (customer is null)
+            {
+                return NotFound(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Customer is not found!"
+                });
+            }
+            _ = _mapper.Map(value, customer);
+            var result = await _customerService.UpdateCustomer(customer);
+            if (result)
+            {
+                return Ok(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Customer updated successfully!"
+                });
+            }
+            return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Failed to update customer!"
+            });
         }
 
-        // POST api/<CustomersController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        /// <summary>
+        /// Delete customer
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("customer/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<string>> DeleteCustomer(Guid id)
         {
-        }
-
-        // PUT api/<CustomersController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<CustomersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var customer = await _customerService.GetCustomerById(id);
+            if (customer is null)
+            {
+                return NotFound(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Customer is not found!"
+                });
+            }
+            var result = await _customerService.DeleteCustomer(customer);
+            if (result)
+            {
+                return Ok(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Customer deleted successfully!"
+                });
+            }
+            return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Failed to delete customer!"
+            });
         }
     }
 }
