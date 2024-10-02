@@ -91,8 +91,8 @@ namespace UberSystem.Api.Driver.Extensions
         private static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IUserService, UserService>();
-            //services.AddScoped<ICabService, CabService>();
+            services.AddScoped<IDriverService, DriverService>();
+
 
             services.AddScoped<ICabRepository, CabRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
