@@ -29,13 +29,17 @@ namespace UberSystem.Service
                     {
                         var customer = new Customer
                         {
-                            UserId = user.Id
+                            UserId = user.Id,
+                            CreateAt = BitConverter.GetBytes(DateTime.Now.ToBinary())
                         };
                         _unitOfWork.CustomerRepository.Add(customer);
                     }
                     else if (user.Role == Domain.Enums.UserRole.Driver)
                     {
-                        var driver = new Driver { UserId = user.Id };
+                        var driver = new Driver { 
+                            UserId = user.Id, 
+                            CreateAt = BitConverter.GetBytes(DateTime.Now.ToBinary()) 
+                        };
                         _unitOfWork.DriverRepository.Add(driver);
                     }
                     _unitOfWork.UserRepository.Add(user);

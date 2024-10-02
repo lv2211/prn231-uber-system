@@ -24,7 +24,7 @@ namespace UberSystem.Api.Authentication.Controllers
         public AuthController(
             IUserService userService,
             IEmailService emailService,
-            TokenService tokenService, 
+            TokenService tokenService,
             IMapper mapper)
         {
             _userService = userService;
@@ -90,7 +90,7 @@ namespace UberSystem.Api.Authentication.Controllers
             // Remove the email verification token from the user's record.
             user.EmailVerified = true;
             user.VerifiedToken = null;
-            
+
             var result = await _userService.UpdateUser(user);
 
             return Ok(new ApiResponseModel<string>
@@ -124,16 +124,23 @@ namespace UberSystem.Api.Authentication.Controllers
                 });
             }
             if (!ModelState.IsValid) return BadRequest();
-            request.Id = Guid.NewGuid();   
+            request.Id = Guid.NewGuid();
             var user = _mapper.Map<User>(request);
-            
+
             // Generate verified email token
+            // TODO: The verified token should have a time limit, e.g, 60 minutes.
             user.VerifiedToken = Guid.NewGuid().ToString();
             var verificationLink = Url.Action(nameof(VerifyEmail), "Auth",
                 new { token = user.VerifiedToken }, Request.Scheme) ?? string.Empty;
             // Send the verification link to the user's email
             await _emailService.SendVerificationEmailAsync(request.Email, verificationLink);
             var result = await _userService.AddUser(user);
+            if (!result)
+                return BadRequest(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Failed to add user!"
+                });
             return Ok(new ApiResponseModel<string>
             {
                 StatusCode = HttpStatusCode.OK,

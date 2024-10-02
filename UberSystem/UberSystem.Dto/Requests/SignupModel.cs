@@ -5,6 +5,7 @@ namespace UberSystem.Dto.Requests
 {
     public class SignupModel
     {
+        [JsonIgnore]
         public Guid Id { get; set; }
 
         public string Role { get; set; } = null!;
@@ -15,6 +16,7 @@ namespace UberSystem.Dto.Requests
         public required string Email { get; set; }
 
         [DataType(DataType.Password)]
+        [MinLength(6, ErrorMessage = "The minimum length of password is 6 characters!")]
         public required string Password { get; set; }
 
         [JsonIgnore]
