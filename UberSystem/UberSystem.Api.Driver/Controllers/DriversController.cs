@@ -24,7 +24,7 @@ namespace UberSystem.Api.Driver.Controllers
         [HttpGet("drivers/pageNumer/{pageNumber}/pageSize/{pageSize}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResponseModel<PagedResponse<UserResponseModel>>>> GetDrivers(int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<ApiResponseModel<IReadOnlyList<PagedResponse<UserResponseModel>>>>> GetDrivers(int pageNumber = 1, int pageSize = 10)
         {
             var drivers = _mapper.Map<IList<UserResponseModel>>(await _driverService.GetDrivers());
             if (!drivers.Any()) return NotFound(new ApiResponseModel<string>
@@ -33,11 +33,12 @@ namespace UberSystem.Api.Driver.Controllers
                 Message = "No data for drivers!"
             });
             var response = PaginationHelper.GetPagedResponse(drivers.AsQueryable(), pageNumber, pageSize);
-            return Ok(new ApiResponseModel<PagedResponse<UserResponseModel>>
+            return Ok(new ApiResponseModel<IReadOnlyList<PagedResponse<UserResponseModel>>>
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Message = "Drivers fetched successfully!",
-                Response = response
+                // Using ReadOnlyCollection to prevent modification of the list
+                Response = new List<PagedResponse<UserResponseModel>> { response }.AsReadOnly()
             });
         }
 
@@ -64,7 +65,7 @@ namespace UberSystem.Api.Driver.Controllers
                 Response = _mapper.Map<UserResponseModel>(driver)
             });
         }
-        
+
         /// <summary>
         /// Update driver's information from client
         /// </summary>
@@ -83,7 +84,7 @@ namespace UberSystem.Api.Driver.Controllers
                     Message = "Id mismatch!"
                 });
             if (!ModelState.IsValid) return BadRequest();
-            
+
             var driver = await _driverService.GetDriverById(id);
             if (driver is null) return NotFound(new ApiResponseModel<string>
             {
