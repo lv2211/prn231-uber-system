@@ -27,6 +27,11 @@ namespace UberSystem.Dto
                 .ForMember(dest => dest.Role, opt => opt.Ignore())
                 .ForMember(dest => dest.EmailVerified, opt => opt.Ignore())
                 .ForMember(dest => dest.VerifiedToken, opt => opt.Ignore());
+
+            CreateMap<User, DriverResponseModel>()
+                .ForMember(dest => dest.DriverId, opt => opt.MapFrom(src => src.Drivers.Select(d => d.Id).First()))
+                .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Drivers.Select(d => d.Dob).First()))
+                .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => src.Drivers.Select(d => d.CreateAt).First()));
         }
     }
 }

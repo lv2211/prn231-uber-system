@@ -32,6 +32,9 @@ namespace UberSystem.Service
             => await _unitOfWork.UserRepository.Get().AsNoTracking()
             .FirstOrDefaultAsync(u => u.Id == driverId);
 
+        public async Task<Driver?> GetDriverById(long driverId)
+            => await _unitOfWork.DriverRepository.FindAsync(driverId);
+
         public async Task<IList<User>> GetDrivers()
             => await _unitOfWork.UserRepository.Get().AsNoTracking()
             .Include(u => u.Drivers)
@@ -45,6 +48,25 @@ namespace UberSystem.Service
                 if (driver is not null)
                 {
                     _unitOfWork.UserRepository.Update(driver);
+                    await _unitOfWork.SaveAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateDriverStatus(Driver driver)
+        {
+            try
+            {
+                if (driver is not null)
+                {
+                    _unitOfWork.DriverRepository.Update(driver);
                     await _unitOfWork.SaveAsync();
                     return true;
                 }

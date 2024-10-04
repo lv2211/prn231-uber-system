@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using UberSystem.Domain.Contracts.Services;
+using UberSystem.Domain.Enums;
 using UberSystem.Dto;
 using UberSystem.Dto.Helpers;
 using UberSystem.Dto.Requests;
@@ -24,21 +26,21 @@ namespace UberSystem.Api.Driver.Controllers
         [HttpGet("drivers/pageNumer/{pageNumber}/pageSize/{pageSize}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ApiResponseModel<IReadOnlyList<PagedResponse<UserResponseModel>>>>> GetDrivers(int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<ApiResponseModel<IReadOnlyList<PagedResponse<DriverResponseModel>>>>> GetDrivers(int pageNumber = 1, int pageSize = 10)
         {
-            var drivers = _mapper.Map<IList<UserResponseModel>>(await _driverService.GetDrivers());
+            var drivers = _mapper.Map<IList<DriverResponseModel>>(await _driverService.GetDrivers());
             if (!drivers.Any()) return NotFound(new ApiResponseModel<string>
             {
                 StatusCode = System.Net.HttpStatusCode.NotFound,
                 Message = "No data for drivers!"
             });
             var response = PaginationHelper.GetPagedResponse(drivers.AsQueryable(), pageNumber, pageSize);
-            return Ok(new ApiResponseModel<IReadOnlyList<PagedResponse<UserResponseModel>>>
+            return Ok(new ApiResponseModel<IReadOnlyList<PagedResponse<DriverResponseModel>>>
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
                 Message = "Drivers fetched successfully!",
                 // Using ReadOnlyCollection to prevent modification of the list
-                Response = new List<PagedResponse<UserResponseModel>> { response }.AsReadOnly()
+                Response = new List<PagedResponse<DriverResponseModel>> { response }.AsReadOnly()
             });
         }
 
@@ -132,6 +134,51 @@ namespace UberSystem.Api.Driver.Controllers
             {
                 StatusCode = System.Net.HttpStatusCode.BadRequest,
                 Message = "Failed to delete driver!"
+            });
+        }
+
+        /// <summary>
+        /// Update driver's status
+        /// </summary>
+        /// <param name="id">Driver's id from Driver table</param>
+        /// <param name="status">Current status of driver (Available, Busy, Offline)</param>
+        /// <returns></returns>
+        [HttpPatch("driver/{id}/status/{status}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<string>>> UpdateDriverStatus(long id, string status)
+        {
+            if (!Enum.TryParse<DriverStatus>(status, true, out var driverStatus) ||
+                !Enum.IsDefined(typeof(DriverStatus), driverStatus))
+            {
+                return BadRequest(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Invalid driver status in the system!"
+                });
+            }
+
+            if (!ModelState.IsValid) return BadRequest();
+            var driver = await _driverService.GetDriverById(id);
+            if (driver is null) return NotFound(new ApiResponseModel<string>
+            {
+                StatusCode = System.Net.HttpStatusCode.NotFound,
+                Message = "Driver is not found!"
+            });
+            driver.Status = Enum.Parse<DriverStatus>(status, true);
+            // The code below allows update for an object, not for a single property
+            //_ = _mapper.Map(status, driver.Status);
+            var result = await _driverService.UpdateDriverStatus(driver);
+            if (!result) return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = System.Net.HttpStatusCode.BadRequest,
+                Message = "Failed to update driver status!"
+            });
+            return Ok(new ApiResponseModel<string>
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                Message = "Success!"
             });
         }
     }
