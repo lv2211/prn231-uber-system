@@ -8,6 +8,8 @@ using UberSystem.Service;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using UberSystem.Dto;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace UberSystem.Api.Driver.Extensions
 {
@@ -15,7 +17,13 @@ namespace UberSystem.Api.Driver.Extensions
     {
         public static IServiceCollection Register(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.WriteIndented = true;
+                opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(opt =>
             {
@@ -92,6 +100,7 @@ namespace UberSystem.Api.Driver.Extensions
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDriverService, DriverService>();
+            services.AddScoped<ITripService, TripService>();
 
 
             services.AddScoped<ICabRepository, CabRepository>();

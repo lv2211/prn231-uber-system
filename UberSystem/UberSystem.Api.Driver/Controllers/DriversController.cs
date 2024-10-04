@@ -12,9 +12,12 @@ namespace UberSystem.Api.Driver.Controllers
 {
     [Route("api/uber-system")]
     [ApiController]
-    public class DriversController(IDriverService driverService, IMapper mapper) : ControllerBase
+    public class DriversController(IDriverService driverService, 
+        ITripService tripService,
+        IMapper mapper) : ControllerBase
     {
         private readonly IDriverService _driverService = driverService;
+        private readonly ITripService _tripService = tripService;
         private readonly IMapper _mapper = mapper;
 
         /// <summary>
@@ -181,5 +184,32 @@ namespace UberSystem.Api.Driver.Controllers
                 Message = "Success!"
             });
         }
+
+        [HttpPatch("trip/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<string>>> UpdateTrip(long id, string status)
+        {
+            var trip = await _tripService.GetTrip(id);
+            if (trip is null) return NotFound(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "Trip is not found!"
+            });
+            trip.Status = Enum.Parse<TripStatus>(status, true);
+            var result = await _tripService.UpdateTrip(trip);
+            if (!result) return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Cannot update trip's status!"
+            });
+            return Ok(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Success",
+                Response = null
+            });
+        }
+
     }
 }

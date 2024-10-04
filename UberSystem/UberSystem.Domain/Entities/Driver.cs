@@ -12,8 +12,14 @@ namespace UberSystem.Domain.Entities
 
         public DateTime? Dob { get; set; }
 
+        /// <summary>
+        /// Driver's current latitude
+        /// </summary>
         public double? LocationLatitude { get; set; }
 
+        /// <summary>
+        /// Driver's current longitude
+        /// </summary>
         public double? LocationLongitude { get; set; }
 
         public DriverStatus Status { get; set; }

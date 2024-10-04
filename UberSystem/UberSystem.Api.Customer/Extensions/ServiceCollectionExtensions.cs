@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using UberSystem.Dto;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace UberSystem.Api.Customer.Extensions
 {
@@ -15,7 +17,13 @@ namespace UberSystem.Api.Customer.Extensions
     {
         public static IServiceCollection Register(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.WriteIndented = true;
+                opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(opt =>
             {

@@ -10,6 +10,8 @@ namespace UberSystem.Domain.Contracts.Services
 
         Task<Customer?> GetCustomerById(long customerId);
 
+        Task<bool> AddTrip(Trip trip);
+
         Task<bool> CreateFeedbackForDriver(Rating rating);
 
         Task<bool> UpdateCustomer(User user);

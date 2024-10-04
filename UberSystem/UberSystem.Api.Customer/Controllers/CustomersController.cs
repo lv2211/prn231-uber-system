@@ -195,5 +195,78 @@ namespace UberSystem.Api.Customer.Controllers
                 Message = "Success",
             });
         }
+
+        /// <summary>
+        /// Get suggested drivers for customer to book a trip
+        /// </summary>
+        /// <param name="id">customer's id</param>
+        /// <param name="sourceLatitude"></param>
+        /// <param name="sourceLongitude"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet("customer/{id}/drivers/pageNumber/{pageNumber}/pageSize/{pageSize}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<PagedResponse<DriverResponseModel>>>> GetDriversForBookingATrip(long id, 
+            [FromQuery] double sourceLatitude,
+            [FromQuery] double sourceLongitude,
+            int pageNumber = 1, int pageSize = 10)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+            var drivers = _mapper.Map<List<DriverResponseModel>>(await _driverService.GetAvailableDrivers(sourceLatitude, sourceLongitude));
+            if (!drivers.Any())
+                return NotFound(new ApiResponseModel<string>
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "No data of drivers!",
+                    Response = null
+                });
+            var response = PaginationHelper.GetPagedResponse(drivers.AsQueryable(), pageNumber, pageSize);
+            return Ok(new ApiResponseModel<PagedResponse<DriverResponseModel>>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Fetch drivers data successfully!",
+                Response = response
+            });
+        }
+
+        [HttpPost("customer/{id}/trip")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ApiResponseModel<string>>> CreateTrip(long id, [FromBody] TripRequestModel model)
+        {
+            if (id != model.CustomerId) return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Id is not matched!"
+            });
+            if (!ModelState.IsValid) return BadRequest();
+            var customer = await _customerService.GetCustomerById(id);
+            if (customer is null) return NotFound(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "Customer is not found!"
+            });
+            var driver = await _driverService.GetDriverById(model.DriverId.Value);
+            if (driver is null) return NotFound(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Message = "Driver is not found!"
+            });
+            var trip = _mapper.Map<Trip>(model);
+            var result = await _customerService.AddTrip(trip);
+            if (!result) return BadRequest(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Failed to create a trip!"
+            });
+            return Ok(new ApiResponseModel<string>
+            {
+                StatusCode = HttpStatusCode.OK,
+                Message = "Success",
+                Response = null
+            });
+        }
     }
 }

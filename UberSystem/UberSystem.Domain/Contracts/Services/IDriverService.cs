@@ -6,6 +6,8 @@ namespace UberSystem.Domain.Contracts.Services
     {
         Task<IList<User>> GetDrivers();
 
+        Task<IList<Driver>> GetAvailableDrivers(double sourceLatitude, double sourceLongitude);
+
         Task<User?> GetDriverById(Guid driverId);
 
         Task<Driver?> GetDriverById(long driverId);
@@ -20,5 +22,7 @@ namespace UberSystem.Domain.Contracts.Services
         Task<bool> UpdateDriverStatus(Driver driver);
 
         Task<bool> DeleteDriver(User driver);
+
+        Task<bool> UpdateTrip(Trip trip);
     }
 }

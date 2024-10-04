@@ -64,6 +64,7 @@ namespace UberSystem.Infrastructure
             modelBuilder.SeedDriverInfo();
             modelBuilder.SeedUserInfo();
             modelBuilder.SeedDataForTrip();
+            modelBuilder.SeedRatingAndFeedback();
             #endregion
         }
     }

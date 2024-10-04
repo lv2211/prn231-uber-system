@@ -34,6 +34,16 @@ namespace UberSystem.Dto
                 .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => src.Drivers.Select(d => d.CreateAt).First()));
 
             CreateMap<FeedbackRequestModel, Rating>();
+            CreateMap<Driver, DriverResponseModel>()
+                .ForMember(dest => dest.DriverId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Cabs.Select(c => c.Type).First()))
+                .ForMember(dest => dest.RegNo, opt => opt.MapFrom(src => src.Cabs.Select(c => c.RegNo).First()))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.User.Id))
+                .ForMember(dest => dest.CreateAt, opt => opt.Ignore());
+
+            CreateMap<TripRequestModel, Trip>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => TripStatus.Ongoing))  // default value for booking a trip
+                .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => BitConverter.GetBytes(DateTime.Now.Ticks)));
         }
     }
 }

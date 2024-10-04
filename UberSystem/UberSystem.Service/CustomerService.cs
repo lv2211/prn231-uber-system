@@ -15,6 +15,25 @@ namespace UberSystem.Service
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<bool> AddTrip(Trip trip)
+        {
+            try
+            {
+                if (trip is not null)
+                {
+                    _unitOfWork.TripRepository.Add(trip);
+                    await _unitOfWork.SaveAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                return false;
+            }
+        }
+
         public async Task<bool> CreateFeedbackForDriver(Rating rating)
         {
             try

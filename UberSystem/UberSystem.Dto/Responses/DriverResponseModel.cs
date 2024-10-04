@@ -13,8 +13,18 @@
         /// </summary>
         public long DriverId { get; set; }
 
+        /// <summary>
+        /// Driver's cab type
+        /// </summary>
+        public string? Type { get; set; }
+
+        /// <summary>
+        /// Driver registration number
+        /// </summary>
+        public string? RegNo { get; set; }
+
         public DateTime? Dob { get; set; }
 
-        public byte[] CreateAt { get; set; } = null!;
+        public byte[]? CreateAt { get; set; }
     }
 }

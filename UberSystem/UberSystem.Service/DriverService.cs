@@ -2,6 +2,7 @@
 using UberSystem.Domain.Contracts;
 using UberSystem.Domain.Contracts.Services;
 using UberSystem.Domain.Entities;
+using UberSystem.Dto.Helpers;
 
 namespace UberSystem.Service
 {
@@ -26,6 +27,31 @@ namespace UberSystem.Service
                 await _unitOfWork.RollbackAsync();
                 return false;
             }
+        }
+
+        public async Task<IList<Driver>> GetAvailableDrivers(double sourceLatitude, double sourceLongitude)
+        {
+            var availableDrivers = await _unitOfWork.DriverRepository.Get()
+                .AsNoTracking()
+                .Include(d => d.User)
+                .Include(d => d.Cabs)
+                .Where(d => d.Status == Domain.Enums.DriverStatus.Available)
+                .ToListAsync();
+            
+            var nearbyDrivers = availableDrivers.Where(d => d.LocationLatitude.HasValue && d.LocationLongitude.HasValue)
+                .Select(d => new
+                {
+                    Driver = d,
+                    d.User,
+                    d.Cabs,
+                    Distance = HaversineFormula.CalculateDistance(sourceLatitude, sourceLongitude, 
+                        d.LocationLatitude.Value, d.LocationLongitude.Value)
+                })
+                .Where(x => x.Distance <= 2)    // Filter drivers within 2 km radius
+                .OrderByDescending(x => x.Driver.Ratings.Average(r => r.TripRating))
+                .Select(x => x.Driver)
+                .ToList();
+            return nearbyDrivers;
         }
 
         public async Task<User?> GetDriverById(Guid driverId)
