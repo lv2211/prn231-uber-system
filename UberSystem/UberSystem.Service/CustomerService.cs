@@ -15,6 +15,34 @@ namespace UberSystem.Service
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<bool> CreateFeedbackForDriver(Rating rating)
+        {
+            try
+            {
+                if (rating is not null)
+                {
+                    var trip = await _unitOfWork.TripRepository.FindAsync(rating.TripId);
+                    if (trip.Status != TripStatus.Completed)
+                        throw new Exception("Cannot do this action, because the trip is not completed!");
+                    // Check whether a rating is done by customer
+                    var existedRating = await _unitOfWork.RatingRepository.Get().AsNoTracking()
+                        .Where(r => r.CustomerId == rating.CustomerId && r.DriverId == rating.DriverId && r.TripId == rating.TripId)
+                        .FirstOrDefaultAsync();
+                    if (existedRating is not null)
+                        return false;
+                    _unitOfWork.RatingRepository.Add(rating);
+                    await _unitOfWork.SaveAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                return false;
+            }
+        }
+
         public async Task<bool> DeleteCustomer(User user)
         {
             try
@@ -38,6 +66,9 @@ namespace UberSystem.Service
             => await _unitOfWork.UserRepository.Get().AsNoTracking()
             .Include(u => u.Customers)
             .FirstOrDefaultAsync(u => u.Id == customerId);
+
+        public async Task<Customer?> GetCustomerById(long customerId)
+            => await _unitOfWork.CustomerRepository.FindAsync(customerId);
 
         public async Task<IList<User>> GetCustomers()
             => await _unitOfWork.UserRepository.Get().AsNoTracking()

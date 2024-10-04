@@ -32,6 +32,8 @@ namespace UberSystem.Dto
                 .ForMember(dest => dest.DriverId, opt => opt.MapFrom(src => src.Drivers.Select(d => d.Id).First()))
                 .ForMember(dest => dest.Dob, opt => opt.MapFrom(src => src.Drivers.Select(d => d.Dob).First()))
                 .ForMember(dest => dest.CreateAt, opt => opt.MapFrom(src => src.Drivers.Select(d => d.CreateAt).First()));
+
+            CreateMap<FeedbackRequestModel, Rating>();
         }
     }
 }

@@ -8,6 +8,10 @@ namespace UberSystem.Domain.Contracts.Services
         
         Task<User?> GetCustomerById(Guid customerId);
 
+        Task<Customer?> GetCustomerById(long customerId);
+
+        Task<bool> CreateFeedbackForDriver(Rating rating);
+
         Task<bool> UpdateCustomer(User user);
 
         Task<bool> DeleteCustomer(User user);

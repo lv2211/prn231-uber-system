@@ -44,6 +44,18 @@ namespace UberSystem.Infrastructure.Data
                     DestinationLatitude = 48.8566,
                     DestinationLongitude = 2.3522,
                     CreateAt = BitConverter.GetBytes(DateTime.Now.Ticks)
+                },
+                new Trip
+                {
+                    Id = 4,
+                    CustomerId = 4,
+                    DriverId = 2,
+                    Status = TripStatus.Canceled,
+                    SourceLatitude = 40.7128,
+                    SourceLongitude = -74.0060,
+                    DestinationLatitude = 35.6895,
+                    DestinationLongitude = 139.6917,
+                    CreateAt = BitConverter.GetBytes(DateTime.Now.Ticks)
                 }
             );
         }

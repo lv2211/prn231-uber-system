@@ -93,6 +93,7 @@ namespace UberSystem.Api.Customer.Extensions
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IDriverService, DriverService>();
 
             services.AddScoped<ICabRepository, CabRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
